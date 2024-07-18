@@ -157,8 +157,8 @@ def.tobs():
      
     return jsonify(all_temperatures)
 
-@app.route("/api/v1.0/<start/<end>")
-def.start():
+@app.route("/api/v1.0/<start>/<end>")
+def.start_end_temperatures():
     """Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range."""
     """For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date."""
     """For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive."""
@@ -167,19 +167,52 @@ def.start():
     
     session = Session(engine)
     
-    stations_measurements_rows = session.query(Measurement.station,func.count(Measurement.station)).\
-        group_by(Measurement.station).\
-        order_by(func.count(Measurement.station).desc()).all()
+    results_tobs = session.query(Measurement.tobs).\
+        filter(Measurement.station == stations_measurements_rows[0][0]).\
+        filter(Measurement.date >= date_one_year_ago).all()
 
     temperatures = session.query(
         func.min(Measurement.tobs),
         func.max(Measurement.tobs),
         func.avg(Measurement.tobs)).all()
     
-    return jsonify(all_passengers)
+    temperature_values = {}
+    temperature_values[func.min(Measurement.tobs) = temp_min
+    temperature_values[func.max(Measurement.tobs) = temp_max
+    temperature_values[func.avg(Measurement.tobs) = temp_avg
+    
+    return jsonify(temperature_values)
+
+@ app.route("api/v1.0/<start>")
+def.start_temperatures():
+    """Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range."""
+    """For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date."""
+    """For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive."""
+    
+    # Create a session (link) from Python to the DB
+    
+    session = Session(engine)
+    
+    results_tobs = session.query(Measurement.tobs).\
+        filter(Measurement.station == stations_measurements_rows[0][0]).\
+        filter(Measurement.date >= date_one_year_ago).all()
+
+    temperatures = session.query(
+        func.min(Measurement.tobs),
+        func.max(Measurement.tobs),
+        func.avg(Measurement.tobs)).all()
+    
+    temperature_values = {}
+    temperature_values[func.min(Measurement.tobs) = temp_min
+    temperature_values[func.max(Measurement.tobs) = temp_max
+    temperature_values[func.avg(Measurement.tobs) = temp_avg
+    
+    return jsonify(temperature_values)
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+ 
 
     
 
